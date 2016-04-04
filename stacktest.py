@@ -73,7 +73,7 @@ def printboard(msnake, mfood):
                 pass
         print ' '
 
-
+# recreate food
 def randomfood():
     foodx = random.randint(1, WIDTH - 2)
     foody = random.randint(1, WIDTH - 2)
