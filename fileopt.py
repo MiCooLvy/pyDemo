@@ -19,6 +19,7 @@ def readf():
     while line != "":
         line = fp.readline()
         scr.refresh()
+    # 一亿行数据读取需要180秒
     tm = time.clock()
     scr.addstr(10, 7, str(tm))
     scr.getch()
