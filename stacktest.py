@@ -1,5 +1,5 @@
 # coding: utf-8
-import random
+import random, copy
 
 # const param
 # board
@@ -13,7 +13,7 @@ LEFT = 3
 RIGHT = 4
 
 # food
-food = [3, 3]
+food = [2, 2]
 foodnum = 0
 
 # snake
@@ -28,19 +28,6 @@ board = [[0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * 
 # temp board mapping
 tempboard = [[0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH, [0] * WIDTH,
              [0] * WIDTH, [0] * WIDTH]
-
-
-def calcutmpboard(mFood):
-    for ti in range(0, HEIGHT):
-        for tj in range(0, WIDTH):
-            if ti == 0 or tj == 0 or ti == HEIGHT - 1 or tj == WIDTH - 1:
-                tempboard[ti][tj] = 255
-            elif board[ti][tj] == 254:
-                tempboard[ti][tj] = 254
-            else:
-                dist = abs(ti - mFood[0]) + abs(tj - mFood[1])
-                tempboard[ti][tj] = dist
-    print tempboard
 
 
 def cleanboard():
@@ -73,6 +60,7 @@ def printboard(msnake, mfood):
                 pass
         print ' '
 
+
 # recreate food
 def randomfood():
     foodx = random.randint(1, WIDTH - 2)
@@ -93,6 +81,27 @@ def putfood(mfood):
 def setsnake(msnake):
     for s in msnake:
         board[s[0]][s[1]] = 254
+
+
+def isSafe():
+    head = snake_head[:]
+    tail = snake[-1]
+    print "tail:", tail
+    pred = copy.deepcopy(tempboard)
+    calcutmpboard(pred, tail)
+    print pred
+
+
+def calcutmpboard(mboard, mfood):
+    for ti in range(0, HEIGHT):
+        for tj in range(0, WIDTH):
+            if ti == 0 or tj == 0 or ti == HEIGHT - 1 or tj == WIDTH - 1:
+                mboard[ti][tj] = 255
+            elif mboard[ti][tj] == 254:
+                mboard[ti][tj] = 254
+            else:
+                dist = abs(ti - mfood[0]) + abs(tj - mfood[1])
+                mboard[ti][tj] = dist
 
 
 def move(direc):
@@ -134,12 +143,38 @@ def move(direc):
             randomfood()
 
 
-randomfood()
+def filewrite():
+    fp = open("board.txt", 'w')
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            fp.write("%3d," % board[i][j])
+        fp.write('\n')
 
+
+randomfood()
+fp = open("board.txt", 'w')
+fp1 = open("tempboard.txt", 'w')
+head = [0, 0]
 while len(snake) < 64:
     printboard(snake, food)
-    calcutmpboard(food)
+    calcutmpboard(tempboard, food)
+
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            fp.write("%3d," % board[i][j])
+        fp.write('\n')
+
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            fp1.write("%3d," % tempboard[i][j])
+        fp1.write('\n')
+    fp1.write("Snake Head: " + str(snake_head) + '\n')
+    fp1.write("Snake Tail: " + str(snake[-1]) + "\n\n")
+    fp.write("Snake Head: " + str(snake_head) + '\n')
+    fp.write("Snake Tail: " + str(snake[-1]) + "\n\n")
+
     print "head =", snake_head
+    isSafe()
 
     up = tempboard[snake_head[0] - 1][snake_head[1]]
     d = UP
@@ -157,3 +192,9 @@ while len(snake) < 64:
         bfsmin = left
         d = LEFT
     move(d)
+    if head == snake_head:
+        fp.close()
+        fp1.close()
+        break
+    else:
+        head = snake_head[:]

@@ -18,3 +18,5 @@ def pow(x, n=2):
 
 
 print pow(5), pow(5, 3)
+
+print range(20)
